@@ -1542,6 +1542,16 @@ EMSCRIPTEN_BINDINGS(Skia) {
             SkScalar* outputWidths = reinterpret_cast<SkScalar*>(wPtr);
             self.getWidthsBounds(glyphs, numGlyphs, outputWidths, outputRects, paint);
         }), allow_raw_pointers())
+        .function("_measureText", optional_override([](SkFont& self, WASMPointerU8 textPtr, size_t len) -> float  {
+            // Преобразуем textPtr в указатель на const void
+            const void* text = reinterpret_cast<const void*>(textPtr);
+
+            if (len == 0 || !text) {
+                 return 999.0f;
+            }
+
+            return self.measureText(text, len, SkTextEncoding::kUTF8);
+        }), allow_raw_pointers())
         .function("_getGlyphIDs", optional_override([](SkFont& self, WASMPointerU8 sptr,
                                                        size_t strLen, size_t expectedCodePoints,
                                                        WASMPointerU16 iPtr) -> int {

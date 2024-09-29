@@ -15,7 +15,7 @@ CanvasKit._extraInitializations.push(function() {
 
   CanvasKit.Canvas.prototype.drawGlyphs = function(glyphs, positions, x, y, font, paint) {
     if (!(glyphs.length*2 <= positions.length)) {
-        throw 'Not enough positions for the array of gyphs';
+      throw 'Not enough positions for the array of gyphs';
     }
     CanvasKit.setCurrentContext(this._context);
     const glyphs_ptr    = copy1dArray(glyphs, 'HEAPU16');
@@ -48,6 +48,19 @@ CanvasKit._extraInitializations.push(function() {
     CanvasKit._free(rectPtr);
     return rv;
   };
+
+  CanvasKit.Font.prototype.measureText = function (text) {
+    let strLen = lengthBytesUTF8(text);
+    let strPtr = CanvasKit._malloc(strLen + 1);
+
+    stringToUTF8(text, strPtr, strLen + 1);
+
+    const res = this['_measureText'](strPtr, strLen);
+
+    CanvasKit._free(strPtr);
+
+    return res;
+  }
 
   CanvasKit.Font.prototype.getGlyphIDs = function(str, numGlyphIDs, optionalOutputArray) {
     if (!numGlyphIDs) {
@@ -85,8 +98,8 @@ CanvasKit._extraInitializations.push(function() {
     var gPtr = copy1dArray(glyphs, 'HEAPU16');
     var pPtr = copy1dArray(positions, 'HEAPF32');
     return this._getGlyphIntercepts(gPtr, glyphs.length, !wasMalloced(glyphs),
-                                    pPtr, positions.length, !wasMalloced(positions),
-                                    top, bottom);
+        pPtr, positions.length, !wasMalloced(positions),
+        top, bottom);
   };
 
   // Glyphs should be a Uint16Array of glyph ids, e.g. provided by Font.getGlyphIDs.
